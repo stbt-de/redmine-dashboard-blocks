@@ -20,7 +20,7 @@ Redmine::Plugin.register :redmine_dashboard_blocks do
   author 'stbt.de'
   author_url 'https://stbt.de/'
   description 'Blöcke für Meine Seite: Zeit buchen, Tickets nach Status und Projekt, Meine Woche.'
-  version '1.0.0'
+  version '1.0.1'
   url 'https://github.com/stbt-de/redmine-dashboard-blocks'
   requires_redmine version_or_higher: '6.0.0'
 end

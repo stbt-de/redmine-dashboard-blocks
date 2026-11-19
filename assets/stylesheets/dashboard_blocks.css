@@ -459,7 +459,8 @@ h3:has(> .dashboard-blocks-week-total, > .dashboard-blocks-today) {
   align-items: center;
   gap: 6px;
   max-width: 300px;
-  padding: 3px 10px 3px 4px;
+  /* links genug Luft, damit das Icon nicht an der Rundung klebt */
+  padding: 3px 12px 3px 8px;
   font: inherit;
   color: inherit;
   cursor: pointer;
@@ -509,10 +510,12 @@ h3:has(> .dashboard-blocks-week-total, > .dashboard-blocks-today) {
   .dashboard-blocks-recent-issue {
     box-sizing: border-box;
     justify-content: flex-start;
+    gap: 8px;
     width: 100%;
     max-width: none;
     min-width: 0;
     min-height: 40px;
+    padding: 4px 16px 4px 12px;
   }
 }
 
