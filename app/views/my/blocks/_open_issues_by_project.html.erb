@@ -1,0 +1,22 @@
+<%# Meine offenen Tickets je Hauptprojekt %>
+<% rows = RedmineDashboardBlocks::ProjectOverview.new(user).rows %>
+<h3><%= l('my.blocks.open_issues_by_project') %></h3>
+
+<% if rows.empty? %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+  <% max = rows.map(&:count).max %>
+  <ul class="dashboard-blocks-projects">
+    <% rows.each do |row| %>
+      <li>
+        <%= link_to dashboard_blocks_issues_path(RedmineDashboardBlocks::StatusTiles.filters(status_id: ['o']), project: row.project),
+                    class: 'dashboard-blocks-project' do %>
+          <%= dashboard_blocks_project_tile(row.project, size: 20) %>
+          <span class="dashboard-blocks-project-name"><%= row.project.name %></span>
+          <span class="dashboard-blocks-bar" aria-hidden="true"><span style="width: <%= (row.count * 100.0 / max).round %>%"></span></span>
+          <span class="dashboard-blocks-project-count"><%= row.count %></span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

@@ -1,0 +1,27 @@
+<%# Statt Redmines Auswahl für den Block "Tickets" (my/blocks/_issue_query_selection,
+    gerendert von MyHelperPatch): gleiche Auswahl und gleiches Formular, dazu
+    eine Erklärung – ohne gespeicherte Abfrage zeigte Redmine nur eine leere
+    Auswahl. %>
+<h3><%= l(:label_issue_plural) %></h3>
+
+<div id="<%= block %>-settings" class="dashboard-blocks-query-selection">
+  <% if queries.empty? %>
+    <p><%= l(:text_dashboard_blocks_no_query) %></p>
+    <p class="dashboard-blocks-hint"><%= l(:text_dashboard_blocks_query_how) %></p>
+    <p><%= link_to l(:button_dashboard_blocks_open_issues), issues_path, class: 'button' %></p>
+  <% else %>
+    <%= form_tag(my_page_path, remote: true) do %>
+      <p>
+        <label for="<%= block %>-query"><%= l(:label_dashboard_blocks_choose_query) %></label>
+        <%= select_tag "settings[#{block}][query_id]",
+                       content_tag('option') + options_from_collection_for_select(queries, :id, :name, settings[:query_id]),
+                       id: "#{block}-query", required: true %>
+        <%= submit_tag l(:button_save) %>
+      </p>
+    <% end %>
+    <p class="dashboard-blocks-hint">
+      <%= l(:text_dashboard_blocks_query_how) %>
+      <%= link_to l(:button_dashboard_blocks_open_issues), issues_path %>
+    </p>
+  <% end %>
+</div>

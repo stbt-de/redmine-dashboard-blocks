@@ -1,0 +1,50 @@
+<%# Gebuchte Stunden der laufenden Woche je Tag, gegen ein Wochenziel %>
+<% week = RedmineDashboardBlocks::WeekSummary.new(user, target: settings[:target_hours]) %>
+<% top = week.top_project %>
+<% scale = [week.daily_target, week.days.map(&:hours).max.to_f].max %>
+
+<div class="contextual">
+  <%= link_to_function sprite_icon('settings', l(:label_options)), "$('##{block}-settings').toggle();",
+                       class: 'icon-only icon-settings', title: l(:label_options) %>
+</div>
+
+<h3>
+  <%= l('my.blocks.my_week') %>
+  <span class="dashboard-blocks-week-total">
+    <%= l(:label_dashboard_blocks_week_total, total: dashboard_blocks_hours(week.total), target: dashboard_blocks_hours(week.target)) %>
+  </span>
+</h3>
+
+<div id="<%= block %>-settings" style="display: none;">
+  <%= form_tag(my_page_path, remote: true) do %>
+    <p>
+      <label for="<%= block %>-target"><%= l(:label_dashboard_blocks_week_target) %></label>
+      <%= number_field_tag "settings[#{block}][target_hours]", week.target, id: "#{block}-target",
+                           min: 1, max: 168, step: 0.5, size: 5 %>
+    </p>
+    <p>
+      <%= submit_tag l(:button_save) %>
+      <%= link_to_function l(:button_cancel), "$('##{block}-settings').toggle();" %>
+    </p>
+  <% end %>
+</div>
+
+<ol class="dashboard-blocks-week" aria-label="<%= l(:label_dashboard_blocks_week_chart) %>">
+  <% week.days.each do |day| %>
+    <li class="dashboard-blocks-day<%= ' dashboard-blocks-day-today' if day.today %>">
+      <span class="dashboard-blocks-day-hours"><%= day.hours.positive? ? format_hours(day.hours) : '–' %></span>
+      <span class="dashboard-blocks-day-bar" aria-hidden="true">
+        <span style="height: <%= scale.positive? ? [(day.hours * 100.0 / scale).round, 100].min : 0 %>%"></span>
+      </span>
+      <span class="dashboard-blocks-day-name" title="<%= format_date(day.date) %>"><%= ::I18n.t('date.abbr_day_names')[day.date.wday] %></span>
+    </li>
+  <% end %>
+</ol>
+
+<p class="dashboard-blocks-week-footer">
+  <% if top %>
+    <span><%= l(:label_dashboard_blocks_week_top_project, project: top.first.name, hours: dashboard_blocks_hours(top.last)) %></span>
+  <% end %>
+  <%= link_to l(:label_dashboard_blocks_week_entries),
+              time_entries_path(set_filter: 1, f: %w[spent_on user_id], op: { spent_on: 'w', user_id: '=' }, v: { user_id: ['me'] }) %>
+</p>

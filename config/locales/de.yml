@@ -1,0 +1,43 @@
+de:
+  my:
+    blocks:
+      quick_time_entry: Zeit buchen
+      issue_status_tiles: Meine Tickets nach Status
+      open_issues_by_project: Meine Tickets nach Projekt
+      my_week: Meine Woche
+
+  label_dashboard_blocks_overdue: Überfällig
+  label_dashboard_blocks_closed_this_week: Diese Woche erledigt
+  label_dashboard_blocks_today: "Heute:"
+  label_dashboard_blocks_search_placeholder: "#Nummer, Titel oder Projekt"
+  label_dashboard_blocks_no_match: Kein offenes Ticket gefunden, auf das du Zeit buchen kannst.
+  label_dashboard_blocks_recent: Zuletzt gebucht
+  label_dashboard_blocks_open_form: Im vollständigen Formular buchen
+  label_dashboard_blocks_not_allowed: Du darfst in keinem Projekt Aufwand buchen.
+  label_dashboard_blocks_week_total: "%{total} von %{target}"
+  label_dashboard_blocks_week_target: Wochenziel (Stunden)
+  label_dashboard_blocks_week_chart: Gebuchte Stunden je Tag
+  label_dashboard_blocks_week_top_project: "Meiste Zeit: %{project} (%{hours})"
+  label_dashboard_blocks_week_entries: Zeiten dieser Woche
+
+  button_dashboard_blocks_log: Buchen
+  button_dashboard_blocks_undo: Rückgängig
+  button_dashboard_blocks_clear: Auswahl entfernen
+
+  notice_dashboard_blocks_time_logged: "%{hours} auf %{issue} gebucht"
+  notice_dashboard_blocks_undone: Buchung zurückgenommen
+
+  error_dashboard_blocks_choose_issue: Bitte zuerst ein Ticket wählen.
+  error_dashboard_blocks_issue_not_loggable: Auf dieses Ticket kannst du keine Zeit buchen.
+  error_dashboard_blocks_not_found: Buchung nicht gefunden oder nicht änderbar.
+  error_dashboard_blocks_failed: Das hat nicht geklappt. Bitte die Seite neu laden.
+
+  label_dashboard_blocks_choose_query: "Abfrage"
+  text_dashboard_blocks_no_query: "Dieser Block zeigt eine gespeicherte Ticket-Abfrage – bisher gibt es noch keine."
+  text_dashboard_blocks_query_how: "So legst du eine an: In der Ticketliste Filter, Spalten, Sortierung und Gruppierung wählen, dann „Abfrage speichern“. Für Meine Seite „Für alle Projekte“ ankreuzen."
+  button_dashboard_blocks_open_issues: "Ticketliste öffnen"
+
+  label_dashboard_blocks_rows: "Zeilen"
+  label_dashboard_blocks_rows_all: "alle"
+  label_dashboard_blocks_rows_shown: "%{shown} von %{total}"
+  label_dashboard_blocks_show_all: "Alle anzeigen"

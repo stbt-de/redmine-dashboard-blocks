@@ -1,0 +1,28 @@
+<%# Fuß des Blocks "Tickets": wie viele Tickets sichtbar sind, Link zur
+    vollständigen Liste, Auswahl der Zeilenzahl (MyHelperPatch) %>
+<% total = query.issue_count %>
+<% rows = RedmineDashboardBlocks::MyHelperPatch.rows(settings[:rows]) %>
+<div class="dashboard-blocks-query-footer">
+  <% if total > 0 %>
+    <span class="dashboard-blocks-query-count">
+      <%= l(:label_dashboard_blocks_rows_shown, shown: issues.size, total: total) %>
+    </span>
+    <% if issues.size < total %>
+      <%= link_to l(:label_dashboard_blocks_show_all), _project_issues_path(query.project, query.as_params) %>
+    <% end %>
+  <% end %>
+
+  <%= form_tag(my_page_path, remote: true, class: 'dashboard-blocks-query-rows') do %>
+    <label for="<%= block %>-rows"><%= l(:label_dashboard_blocks_rows) %></label>
+    <%= select_tag "settings[#{block}][rows]",
+                   options_for_select(RedmineDashboardBlocks::MyHelperPatch::ROWS.map { |value|
+                     [value == 'all' ? l(:label_dashboard_blocks_rows_all) : value, value]
+                   }, rows),
+                   id: "#{block}-rows",
+                   # requestSubmit: löst das Submit-Ereignis aus, über das Redmine 7
+                   # (rails-ujs) per Ajax sendet – submit() schickte ein normales
+                   # Formular, update_page antwortet darauf mit 406
+                   onchange: "this.form.requestSubmit ? this.form.requestSubmit() : $(this.form).submit();" %>
+    <noscript><%= submit_tag l(:button_save), name: nil %></noscript>
+  <% end %>
+</div>

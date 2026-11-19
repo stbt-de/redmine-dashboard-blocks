@@ -1,0 +1,14 @@
+<%# Meine offenen Tickets je Status, überfällig, diese Woche erledigt %>
+<% tiles = RedmineDashboardBlocks::StatusTiles.new(user).tiles %>
+<h3><%= l('my.blocks.issue_status_tiles') %></h3>
+
+<ul class="dashboard-blocks-tiles">
+  <% tiles.each do |tile| %>
+    <li class="dashboard-blocks-tile<%= ' dashboard-blocks-tile-alert' if tile.alert? %>" data-kind="<%= tile.kind %>">
+      <%= link_to dashboard_blocks_issues_path(tile.filters), class: 'dashboard-blocks-tile-link' do %>
+        <span class="dashboard-blocks-tile-count"><%= tile.count %></span>
+        <span class="dashboard-blocks-tile-label"><%= tile.label %></span>
+      <% end %>
+    </li>
+  <% end %>
+</ul>
