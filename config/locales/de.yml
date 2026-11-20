@@ -48,3 +48,12 @@ de:
   label_dashboard_blocks_rows_all: "alle"
   label_dashboard_blocks_rows_shown: "%{shown} von %{total}"
   label_dashboard_blocks_show_all: "Alle anzeigen"
+
+  label_dashboard_blocks_pages: Dashboards
+  label_dashboard_blocks_page_default: Übersicht
+  label_dashboard_blocks_page_new: Neues Dashboard
+  label_dashboard_blocks_page_name: Name des Dashboards
+  label_dashboard_blocks_page_placeholder: "z. B. Team oder Zeiten"
+  text_dashboard_blocks_page_delete: "Dashboard „%{name}“ mit allen Blöcken löschen?"
+  error_dashboard_blocks_page_not_saved: "Dashboard nicht gespeichert: Der Name fehlt, oder es gibt schon 10 Dashboards."
+  text_dashboard_blocks_page_empty: "Dieses Dashboard ist noch leer. Über „Hinzufügen“ oben rechts setzt du Blöcke ein und ziehst sie dann am Griff in die Spalten."

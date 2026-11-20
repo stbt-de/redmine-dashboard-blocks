@@ -1,0 +1,64 @@
+<%# Reiter der Dashboards über den Spalten von Meine Seite:
+    [Übersicht | Team | Zeiten] [+] […: Umbenennen, Löschen]
+    Darunter (eingeklappt) die Formulare für "Neu" und "Umbenennen". %>
+<% dashboard_pages = RedmineDashboardBlocks::DashboardPages.new(User.current) %>
+<% pages = dashboard_pages.pages %>
+<% active = pages.detect(&:active) || pages.first %>
+<% name_of = ->(page) { page.name.presence || l(:label_dashboard_blocks_page_default) } %>
+
+<div class="dashboard-blocks-pages">
+  <nav class="dashboard-blocks-pages-bar" aria-label="<%= l(:label_dashboard_blocks_pages) %>">
+    <div class="tabs dashboard-blocks-page-tabs">
+      <ul>
+        <% pages.each do |page| %>
+          <li>
+            <%= link_to name_of.call(page), my_page_path(dashboard: page.id),
+                        class: ('selected' if page.active), 'aria-current': ('page' if page.active) %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+
+    <% if dashboard_pages.can_add? %>
+      <%= link_to_function sprite_icon('add', l(:label_dashboard_blocks_page_new)),
+                           "$('#dashboard-blocks-page-rename').hide(); $('#dashboard-blocks-page-new').toggle(); $('#dashboard-blocks-page-new-name').focus();",
+                           class: 'icon-only icon-add dashboard-blocks-page-add', title: l(:label_dashboard_blocks_page_new) %>
+    <% end %>
+
+    <%= actions_dropdown do %>
+      <%= link_to_function sprite_icon('edit', l(:button_rename)),
+                           "$('#dashboard-blocks-page-new').hide(); $('#dashboard-blocks-page-rename').toggle(); $('#dashboard-blocks-page-rename-name').focus().select();",
+                           class: 'icon icon-edit' %>
+      <% if dashboard_pages.can_destroy? %>
+        <%= link_to sprite_icon('del', l(:button_delete)), dashboard_blocks_page_path(active.id), method: :delete,
+                    data: { confirm: l(:text_dashboard_blocks_page_delete, name: name_of.call(active)) },
+                    class: 'icon icon-del' %>
+      <% end %>
+    <% end %>
+  </nav>
+
+  <%# Leeres Dashboard: Hinweis statt weißer Fläche (CSS blendet ihn aus,
+      sobald ein Block da ist – auch nach "Hinzufügen" ohne Neuladen) %>
+  <p class="dashboard-blocks-page-empty"><%= l(:text_dashboard_blocks_page_empty) %></p>
+
+  <% if dashboard_pages.can_add? %>
+    <%= form_tag(dashboard_blocks_pages_path, id: 'dashboard-blocks-page-new', class: 'dashboard-blocks-page-form',
+                                              style: 'display: none;') do %>
+      <label for="dashboard-blocks-page-new-name"><%= l(:label_dashboard_blocks_page_name) %></label>
+      <%= text_field_tag 'name', '', id: 'dashboard-blocks-page-new-name', required: true,
+                         maxlength: RedmineDashboardBlocks::DashboardPages::MAX_NAME_LENGTH,
+                         placeholder: l(:label_dashboard_blocks_page_placeholder) %>
+      <%= submit_tag l(:button_create) %>
+      <%= link_to_function l(:button_cancel), "$('#dashboard-blocks-page-new').hide();" %>
+    <% end %>
+  <% end %>
+
+  <%= form_tag(dashboard_blocks_page_path(active.id), method: :patch, id: 'dashboard-blocks-page-rename',
+                                                       class: 'dashboard-blocks-page-form', style: 'display: none;') do %>
+    <label for="dashboard-blocks-page-rename-name"><%= l(:label_dashboard_blocks_page_name) %></label>
+    <%= text_field_tag 'name', name_of.call(active), id: 'dashboard-blocks-page-rename-name', required: true,
+                       maxlength: RedmineDashboardBlocks::DashboardPages::MAX_NAME_LENGTH %>
+    <%= submit_tag l(:button_save) %>
+    <%= link_to_function l(:button_cancel), "$('#dashboard-blocks-page-rename').hide();" %>
+  <% end %>
+</div>

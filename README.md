@@ -20,6 +20,18 @@ quickly, see where your issues stand, and how your week is going.
 
 The blocks are added, moved and removed like Redmine's own blocks (*My page → Add*).
 
+**Several dashboards** – each user can keep more than one *My page*, e.g. *Overview*,
+*Team* and *Time*, shown as tabs above the columns. **+** creates a new, empty dashboard,
+the **…** menu renames or deletes the current one (up to ten per user). Every dashboard
+has its own blocks, arrangement and block settings, and its own address
+(`/my/page?dashboard=2`) for bookmarks. Your existing *My page* becomes the first
+dashboard. Dashboards are private to each user.
+
+Technically Redmine keeps working on one page: the plugin swaps the stored arrangement and
+block settings when you switch tabs, so adding, moving and configuring blocks work exactly
+as before. The tab you used last stays selected – with two browser windows on different
+dashboards, changes go to the one selected last.
+
 Redmine's own **Issues** block (a saved query on *My page*) gets two small additions:
 the number of rows can be chosen (10, 25, 50 or all instead of always 10), with
 "10 of 23 · Show all" below the list; and without any saved query the block explains how

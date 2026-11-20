@@ -3,6 +3,10 @@
 module RedmineDashboardBlocks
   # Stylesheet und Script nur auf "Meine Seite" – dort liegen die Blöcke
   class Hooks < Redmine::Hook::ViewListener
+    # Reiter der Dashboards: steht im Hook am Ende von #my-page, per CSS
+    # (order) über den Spalten
+    render_on :view_my_page_splitcontent, partial: 'dashboard_blocks/page_tabs'
+
     def view_layouts_base_html_head(context = {})
       controller = context[:controller]
       return '' unless controller.is_a?(MyController) && controller.action_name == 'page'

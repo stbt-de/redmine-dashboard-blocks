@@ -656,3 +656,114 @@ h3:has(> .dashboard-blocks-week-total, > .dashboard-blocks-today) {
   width: auto;
   min-width: 0;
 }
+
+/* --- Dashboards: Reiter über den Spalten (DashboardPages) ------------------
+   Die Reiter stehen im Hook am Ende von #my-page; order: -1 holt sie nach
+   oben, volle Breite. Redmines #my-page hat overflow: auto – das Menü "…"
+   würde darin abgeschnitten. */
+
+#my-page:has(> .dashboard-blocks-pages) {
+  overflow: visible;
+}
+
+.dashboard-blocks-pages {
+  order: -1;
+  flex: 0 0 100%;
+  min-width: 0;
+  margin: 0 0 16px;
+}
+
+.dashboard-blocks-pages-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* Reiter: Redmines .tabs ohne feste Höhe und ohne 2000px breite Leiste;
+   viele Reiter scrollen waagerecht (mobil) */
+#content .dashboard-blocks-pages .tabs {
+  flex: 0 1 auto;
+  min-width: 0;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+}
+
+#content .dashboard-blocks-pages .tabs ul {
+  position: static;
+  display: flex;
+  width: auto;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+#content .dashboard-blocks-pages .tabs ul li {
+  flex: 0 0 auto;
+}
+
+#content .dashboard-blocks-pages .tabs ul li a {
+  white-space: nowrap;
+}
+
+/* "+" und "…" als schlichte Icon-Knöpfe neben den Reitern */
+.dashboard-blocks-pages-bar > .dashboard-blocks-page-add,
+.dashboard-blocks-pages-bar > .drdn > .drdn-trigger {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: inherit;
+  border: 0;
+  border-radius: 6px;
+}
+
+.dashboard-blocks-pages-bar > .dashboard-blocks-page-add:hover,
+.dashboard-blocks-pages-bar > .drdn > .drdn-trigger:hover {
+  background-color: var(--dashboard-blocks-surface);
+}
+
+.dashboard-blocks-pages-bar > .drdn {
+  flex-shrink: 0;
+}
+
+.dashboard-blocks-pages-bar > .drdn .drdn-content {
+  top: 100%;
+  min-width: 180px;
+}
+
+/* Name für neues Dashboard / Umbenennen */
+.dashboard-blocks-page-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 12px 0 0;
+}
+
+.dashboard-blocks-page-form label {
+  font-weight: 600;
+}
+
+.dashboard-blocks-page-form input[type="text"] {
+  flex: 0 1 260px;
+  min-width: 0;
+}
+
+/* Hinweis für ein leeres Dashboard; weg, sobald ein Block da ist */
+.dashboard-blocks-page-empty {
+  margin: 16px 0 0;
+  padding: 24px;
+  color: var(--dashboard-blocks-muted);
+  text-align: center;
+  border: 1px dashed var(--dashboard-blocks-border);
+  border-radius: 12px;
+}
+
+#my-page:has(.mypage-box) .dashboard-blocks-page-empty {
+  display: none;
+}

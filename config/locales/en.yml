@@ -48,3 +48,12 @@ en:
   label_dashboard_blocks_rows_all: "all"
   label_dashboard_blocks_rows_shown: "%{shown} of %{total}"
   label_dashboard_blocks_show_all: "Show all"
+
+  label_dashboard_blocks_pages: Dashboards
+  label_dashboard_blocks_page_default: Overview
+  label_dashboard_blocks_page_new: New dashboard
+  label_dashboard_blocks_page_name: Dashboard name
+  label_dashboard_blocks_page_placeholder: "e.g. Team or Time"
+  text_dashboard_blocks_page_delete: "Delete dashboard “%{name}” with all its blocks?"
+  error_dashboard_blocks_page_not_saved: "Dashboard not saved: the name is missing, or there are already 10 dashboards."
+  text_dashboard_blocks_page_empty: "This dashboard is still empty. Use “Add” at the top right to insert blocks, then drag them by their handle into the columns."

@@ -86,6 +86,52 @@ class DashboardBlocksTest < Redmine::IntegrationTest
                   'settings[my_week__1][user_id]', dlopper.id.to_s
   end
 
+  # --- Dashboards (Reiter) ----------------------------------------------------
+
+  def test_reiter_anlegen_wechseln_umbenennen_loeschen
+    my_page_blocks(@user, :my_week)
+    get '/my/page'
+    assert_select '#my-page .dashboard-blocks-pages .tabs a.selected', text: /Übersicht|Overview/
+    assert_select '#dashboard-blocks-page-new input[name=name]'
+
+    post '/my/dashboards', params: { name: 'Team' }
+    assert_redirected_to '/my/page?dashboard=2'
+    follow_redirect!
+    assert_select '.dashboard-blocks-pages .tabs a', 2
+    assert_select '.dashboard-blocks-pages .tabs a.selected', text: 'Team'
+    assert_select '#block-my_week', 0
+    assert_select '.dashboard-blocks-page-empty'
+
+    # Hinzufügen landet im gewählten Dashboard
+    post '/my/add_block', params: { block: 'issue_status_tiles' }, xhr: true
+    get '/my/page?dashboard=1'
+    assert_select '#block-my_week'
+    assert_select '#block-issue_status_tiles', 0
+    get '/my/page?dashboard=2'
+    assert_select '#block-issue_status_tiles'
+
+    patch '/my/dashboards/2', params: { name: 'Zeiten' }
+    follow_redirect!
+    assert_select '.dashboard-blocks-pages .tabs a.selected', text: 'Zeiten'
+
+    delete '/my/dashboards/2'
+    assert_redirected_to '/my/page?dashboard=1'
+    follow_redirect!
+    assert_select '.dashboard-blocks-pages .tabs a', 1
+    assert_select '#block-my_week'
+  end
+
+  def test_dashboards_anderer_benutzer_bleiben_unberuehrt
+    other = User.find(3)
+    other.pref.my_page_layout = { 'top' => ['news'] }
+    other.pref.save!
+    post '/my/dashboards', params: { name: 'Team' }
+    delete '/my/dashboards/1'
+
+    assert_equal ['news'], other.reload.pref.my_page_layout['top']
+    assert_nil other.pref[:dashboard_blocks_pages]
+  end
+
   # Ohne gespeicherte Abfrage zeigte Redmines Block "Tickets" nur eine leere
   # Auswahl und "Speichern" – jetzt eine Erklärung mit Link zur Ticketliste
   def test_tickets_block_ohne_abfrage_erklaert_den_weg
