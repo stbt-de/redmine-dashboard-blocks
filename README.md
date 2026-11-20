@@ -13,8 +13,10 @@ quickly, see where your issues stand, and how your week is going.
 - **My issues by project** – your open issues per top-level project; subprojects count
   towards their parent (with customer projects: per customer). Shows project icons when
   [redmine-project-icons](https://github.com/stbt-de/redmine-project-icons) is installed.
-- **My week** – hours logged per day this week against a weekly target (set in the
-  block's options, default 40 h), and where most of the time went.
+- **Weekly hours** – hours logged per day against a weekly target (set in the block's
+  options, default 40 h), and where most of the time went. Step back and forth between
+  weeks, and pick a colleague to see their hours instead of your own. Can be added up to five times
+  (e.g. one per colleague); each block remembers its person and is titled with their name.
 
 The blocks are added, moved and removed like Redmine's own blocks (*My page → Add*).
 
@@ -82,8 +84,12 @@ available when the user may edit their own time entries.
 
 **"My issues"** means issues assigned to the user or to one of their groups, as in
 Redmine's own *Issues assigned to me*. Weeks start on the day set under *Administration →
-Settings → Display* (or the user's language); non-working days only appear in *My week*
-when time was logged on them.
+Settings → Display* (or the user's language); non-working days only appear in *Weekly hours*
+when time was logged on one of them – then all of them (Saturday and Sunday together).
+
+**Whose hours** *Weekly hours* can show: the user's own, plus members of the projects in which
+they may view spent time (administrators: all active users). Which entries appear follows
+Redmine's own rules – a role that only sees its own time entries shows nothing for others.
 
 **Log time** uses a small JSON endpoint of the plugin (`/dashboard_blocks/time_entries`)
 for the issue search, the project's activities, logging and undo; it works with the

@@ -4,7 +4,7 @@ en:
       quick_time_entry: Log time
       issue_status_tiles: My issues by status
       open_issues_by_project: My issues by project
-      my_week: My week
+      my_week: Weekly hours
 
   label_dashboard_blocks_overdue: Overdue
   label_dashboard_blocks_closed_this_week: Closed this week
@@ -18,7 +18,14 @@ en:
   label_dashboard_blocks_week_target: Weekly target (hours)
   label_dashboard_blocks_week_chart: Hours logged per day
   label_dashboard_blocks_week_top_project: "Most time: %{project} (%{hours})"
-  label_dashboard_blocks_week_entries: This week's entries
+  label_dashboard_blocks_week_entries: View entries
+  label_dashboard_blocks_week_previous: Previous week
+  label_dashboard_blocks_week_next: Next week
+  label_dashboard_blocks_week_current: This week
+  label_dashboard_blocks_week_number: "Week %{number}"
+  label_dashboard_blocks_week_user: Hours of
+  label_dashboard_blocks_week_of: "Weekly hours: %{name}"
+  date_format_dashboard_blocks_day: "%b %-d"
 
   button_dashboard_blocks_log: Log
   button_dashboard_blocks_undo: Undo

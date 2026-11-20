@@ -1,5 +1,6 @@
 // =============================================================================
-// Dashboard Blocks – Block "Zeit buchen" auf Meine Seite
+// Dashboard Blocks – Block "Zeit buchen" auf Meine Seite (dazu unten: Wahl
+// des Mitarbeiters in "Wochenstunden")
 //
 // Ticket suchen (Nummer, Titel, Projekt), Dauer per Schnellwahl, buchen ohne
 // Seitenwechsel, Rückgängig. Ohne JavaScript schickt das Formular an
@@ -361,6 +362,14 @@
       clearIssue(root);
       p.search.value = '';
       p.search.focus();
+    }
+  });
+
+  // Wochenstunden: anderer Mitarbeiter → Formular per Ajax (rails-ujs) senden;
+  // jQuerys .submit() ginge am Ajax vorbei (Redmine antwortet dann 406)
+  document.addEventListener('change', function (event) {
+    if (event.target.matches('.dashboard-blocks-week-user select')) {
+      event.target.form.requestSubmit();
     }
   });
 

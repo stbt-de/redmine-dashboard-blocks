@@ -50,6 +50,42 @@ class DashboardBlocksTest < Redmine::IntegrationTest
     assert_select '#block-my_week input[name=?][value=?]', 'settings[my_week][target_hours]', '32.0'
   end
 
+  def test_woche_wechseln_und_mitarbeiter_waehlen
+    my_page_blocks(@user, :my_week)
+    dlopper = User.find(3)
+    get '/my/page'
+    assert_select '#block-my_week select[name=?] option[value=?]', 'settings[my_week][user_id]', dlopper.id.to_s
+    assert_select '#block-my_week button[name=my_week_start]', 2
+
+    # Vorige Woche: Redmine setzt den Block neu ein, die Woche bleibt erhalten
+    previous = RedmineDashboardBlocks::Scope.week_start(@user.today) - 7
+    post '/my/page', params: { my_week_start: previous.iso8601, settings: { my_week: { user_id: dlopper.id.to_s } } },
+                     xhr: true
+    assert_response :success
+    assert_equal dlopper.id.to_s, @user.reload.pref.my_page_settings('my_week')[:user_id]
+    assert_includes response.body, previous.iso8601
+    assert_includes response.body, 'dashboard-blocks-week-current'
+    assert_includes response.body, "v%5Buser_id%5D%5B%5D=#{dlopper.id}"
+  end
+
+  # Woche je Mitarbeiter: der Block lässt sich mehrfach hinzufügen, jede
+  # Instanz merkt sich ihre Person (nach dem Neuladen noch gewählt)
+  def test_woche_mehrfach_mit_eigener_person
+    my_page_blocks(@user)
+    post '/my/add_block', params: { block: 'my_week' }, xhr: true
+    post '/my/add_block', params: { block: 'my_week__1' }, xhr: true
+    assert_equal %w[my_week my_week__1], @user.reload.pref.my_page_layout.values.flatten.grep(/my_week/).sort
+
+    dlopper = User.find(3)
+    post '/my/page', params: { settings: { my_week__1: { user_id: dlopper.id.to_s } } }, xhr: true
+    get '/my/page'
+    assert_select '#block-my_week h3', text: /\AWochenstunden|\AWeekly hours/
+    assert_select '#block-my_week__1 h3', text: /#{dlopper.name}/
+    assert_select '#block-my_week select option[selected][value=?]', @user.id.to_s
+    assert_select '#block-my_week__1 select[name=?] option[selected][value=?]',
+                  'settings[my_week__1][user_id]', dlopper.id.to_s
+  end
+
   # Ohne gespeicherte Abfrage zeigte Redmines Block "Tickets" nur eine leere
   # Auswahl und "Speichern" – jetzt eine Erklärung mit Link zur Ticketliste
   def test_tickets_block_ohne_abfrage_erklaert_den_weg

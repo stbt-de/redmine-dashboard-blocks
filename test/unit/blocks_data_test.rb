@@ -72,7 +72,7 @@ class BlocksDataTest < ActiveSupport::TestCase
     assert_equal [project], rows.map(&:project)
   end
 
-  # --- Meine Woche ----------------------------------------------------------
+  # --- Wochenstunden --------------------------------------------------------
 
   def test_woche_summiert_je_tag
     issue = Issue.find(1)
@@ -94,10 +94,51 @@ class BlocksDataTest < ActiveSupport::TestCase
       week = RedmineDashboardBlocks::WeekSummary.new(@user)
       assert_equal (1..5).to_a, week.days.map { |day| day.date.cwday }
 
-      create_time_entry(@user, Issue.find(1), hours: 1, spent_on: week.start + 5) # Samstag
+      # Gebucht am Samstag: Samstag und Sonntag erscheinen beide
+      create_time_entry(@user, Issue.find(1), hours: 1, spent_on: week.start + 5)
       week = RedmineDashboardBlocks::WeekSummary.new(@user)
-      assert_equal (1..6).to_a, week.days.map { |day| day.date.cwday }
+      assert_equal (1..7).to_a, week.days.map { |day| day.date.cwday }
     end
+  end
+
+  def test_woche_vor_und_zurueck
+    with_settings start_of_week: '1' do
+      TimeEntry.where(user_id: @user.id).delete_all
+      current = RedmineDashboardBlocks::WeekSummary.new(@user)
+      create_time_entry(@user, Issue.find(1), hours: 2, spent_on: current.previous_start + 1)
+
+      previous = RedmineDashboardBlocks::WeekSummary.new(@user, date: current.previous_start.iso8601)
+      assert_not previous.current?
+      assert_equal current.start - 7, previous.start
+      assert_in_delta 2, previous.total
+      assert_in_delta 0, current.total
+      assert_equal current.start, RedmineDashboardBlocks::WeekSummary.new(@user, date: 'kein-datum').start
+      assert_equal 1, RedmineDashboardBlocks::WeekSummary.new(@user, date: '2026-01-01').number
+    end
+  end
+
+  def test_stunden_eines_anderen_mitarbeiters
+    dlopper = User.find(3) # Developer in Projekt 1
+    TimeEntry.where(user_id: dlopper.id).delete_all
+    start = RedmineDashboardBlocks::Scope.week_start(@user.today)
+    create_time_entry(dlopper, Issue.find(1), hours: 4, spent_on: start)
+
+    assert_includes RedmineDashboardBlocks::WeekSummary.selectable_users(@user), dlopper
+    assert_equal @user, RedmineDashboardBlocks::WeekSummary.selectable_users(@user).first
+    person = RedmineDashboardBlocks::WeekSummary.resolve_user(@user, dlopper.id.to_s)
+    assert_in_delta 4, RedmineDashboardBlocks::WeekSummary.new(@user, user: person).total
+  end
+
+  def test_fremde_stunden_nur_mit_recht
+    dlopper = User.find(3)
+    TimeEntry.where(user_id: dlopper.id).delete_all
+    create_time_entry(dlopper, Issue.find(1), hours: 4, spent_on: @user.today)
+    Role.find_each { |role| role.remove_permission!(:view_time_entries) }
+
+    # Nicht wählbar: zurück auf den Betrachter …
+    assert_equal @user, RedmineDashboardBlocks::WeekSummary.resolve_user(@user, dlopper.id.to_s)
+    # … und auch direkt übergeben keine fremden Stunden
+    assert_in_delta 0, RedmineDashboardBlocks::WeekSummary.new(@user, user: dlopper).total
   end
 
   def test_wochenziel_mit_komma_und_standard

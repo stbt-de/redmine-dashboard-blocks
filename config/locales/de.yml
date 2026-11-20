@@ -4,7 +4,7 @@ de:
       quick_time_entry: Zeit buchen
       issue_status_tiles: Meine Tickets nach Status
       open_issues_by_project: Meine Tickets nach Projekt
-      my_week: Meine Woche
+      my_week: Wochenstunden
 
   label_dashboard_blocks_overdue: Überfällig
   label_dashboard_blocks_closed_this_week: Diese Woche erledigt
@@ -18,7 +18,14 @@ de:
   label_dashboard_blocks_week_target: Wochenziel (Stunden)
   label_dashboard_blocks_week_chart: Gebuchte Stunden je Tag
   label_dashboard_blocks_week_top_project: "Meiste Zeit: %{project} (%{hours})"
-  label_dashboard_blocks_week_entries: Zeiten dieser Woche
+  label_dashboard_blocks_week_entries: Buchungen ansehen
+  label_dashboard_blocks_week_previous: Vorige Woche
+  label_dashboard_blocks_week_next: Nächste Woche
+  label_dashboard_blocks_week_current: Diese Woche
+  label_dashboard_blocks_week_number: "KW %{number}"
+  label_dashboard_blocks_week_user: Stunden von
+  label_dashboard_blocks_week_of: "Wochenstunden: %{name}"
+  date_format_dashboard_blocks_day: "%d.%m."
 
   button_dashboard_blocks_log: Buchen
   button_dashboard_blocks_undo: Rückgängig

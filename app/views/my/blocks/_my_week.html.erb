@@ -1,5 +1,11 @@
-<%# Gebuchte Stunden der laufenden Woche je Tag, gegen ein Wochenziel %>
-<% week = RedmineDashboardBlocks::WeekSummary.new(user, target: settings[:target_hours]) %>
+<%# Gebuchte Stunden einer Woche je Tag, gegen ein Wochenziel.
+    Woche (params[:my_week_start]) und Benutzer (settings[:user_id]) kommen
+    über das Formular unten: Redmine speichert die Einstellung und setzt den
+    Block per Ajax neu ein (my/update_page); die Woche reist als Parameter mit. %>
+<% users = RedmineDashboardBlocks::WeekSummary.selectable_users(user) %>
+<% person = RedmineDashboardBlocks::WeekSummary.resolve_user(user, settings[:user_id]) %>
+<% week = RedmineDashboardBlocks::WeekSummary.new(user, target: settings[:target_hours], user: person,
+                                                  date: params[:my_week_start]) %>
 <% top = week.top_project %>
 <% scale = [week.daily_target, week.days.map(&:hours).max.to_f].max %>
 
@@ -8,8 +14,9 @@
                        class: 'icon-only icon-settings', title: l(:label_options) %>
 </div>
 
+<%# Mehrere Instanzen (my_week, my_week__1, …) unterscheiden sich am Namen %>
 <h3>
-  <%= l('my.blocks.my_week') %>
+  <%= week.own? ? l('my.blocks.my_week') : l(:label_dashboard_blocks_week_of, name: person.name) %>
   <span class="dashboard-blocks-week-total">
     <%= l(:label_dashboard_blocks_week_total, total: dashboard_blocks_hours(week.total), target: dashboard_blocks_hours(week.target)) %>
   </span>
@@ -17,6 +24,7 @@
 
 <div id="<%= block %>-settings" style="display: none;">
   <%= form_tag(my_page_path, remote: true) do %>
+    <%= hidden_field_tag 'my_week_start', week.start.iso8601, id: nil %>
     <p>
       <label for="<%= block %>-target"><%= l(:label_dashboard_blocks_week_target) %></label>
       <%= number_field_tag "settings[#{block}][target_hours]", week.target, id: "#{block}-target",
@@ -28,6 +36,37 @@
     </p>
   <% end %>
 </div>
+
+<%= form_tag(my_page_path, remote: true, class: 'dashboard-blocks-week-nav') do %>
+  <%= hidden_field_tag 'my_week_start', week.start.iso8601, id: nil %>
+  <span class="dashboard-blocks-week-steps">
+    <button type="submit" name="my_week_start" value="<%= week.previous_start.iso8601 %>"
+            class="dashboard-blocks-week-step" title="<%= l(:label_dashboard_blocks_week_previous) %>"
+            aria-label="<%= l(:label_dashboard_blocks_week_previous) %>"><%= sprite_icon('angle-left') %></button>
+    <span class="dashboard-blocks-week-label">
+      <strong><%= l(:label_dashboard_blocks_week_number, number: week.number) %></strong>
+      <span><%= ::I18n.l(week.start, format: l(:date_format_dashboard_blocks_day)) %>–<%= ::I18n.l(week.finish, format: l(:date_format_dashboard_blocks_day)) %></span>
+    </span>
+    <button type="submit" name="my_week_start" value="<%= week.next_start.iso8601 %>"
+            class="dashboard-blocks-week-step" title="<%= l(:label_dashboard_blocks_week_next) %>"
+            aria-label="<%= l(:label_dashboard_blocks_week_next) %>"><%= sprite_icon('angle-right') %></button>
+    <% unless week.current? %>
+      <button type="submit" name="my_week_start" value="" class="dashboard-blocks-week-current">
+        <%= l(:label_dashboard_blocks_week_current) %>
+      </button>
+    <% end %>
+  </span>
+  <% if users.size > 1 %>
+    <label class="dashboard-blocks-week-user">
+      <span class="dashboard-blocks-visually-hidden"><%= l(:label_dashboard_blocks_week_user) %></span>
+      <%= select_tag "settings[#{block}][user_id]",
+                     options_from_collection_for_select(users, :id, :name, person.id),
+                     id: "#{block}-user" %>
+    </label>
+  <% else %>
+    <%= hidden_field_tag "settings[#{block}][user_id]", person.id, id: nil %>
+  <% end %>
+<% end %>
 
 <ol class="dashboard-blocks-week" aria-label="<%= l(:label_dashboard_blocks_week_chart) %>">
   <% week.days.each do |day| %>
@@ -46,5 +85,6 @@
     <span><%= l(:label_dashboard_blocks_week_top_project, project: top.first.name, hours: dashboard_blocks_hours(top.last)) %></span>
   <% end %>
   <%= link_to l(:label_dashboard_blocks_week_entries),
-              time_entries_path(set_filter: 1, f: %w[spent_on user_id], op: { spent_on: 'w', user_id: '=' }, v: { user_id: ['me'] }) %>
+              time_entries_path(set_filter: 1, f: %w[spent_on user_id], op: { spent_on: '><', user_id: '=' },
+                                v: { spent_on: [week.start.iso8601, week.finish.iso8601], user_id: [person.id.to_s] }) %>
 </p>

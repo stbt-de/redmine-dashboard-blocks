@@ -157,7 +157,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* --- Meine Woche ----------------------------------------------------------- */
+/* --- Wochenstunden --------------------------------------------------------- */
 
 /* Überschrift mit Summe: bricht als Ganzes um, ohne Einzug in der zweiten
    Zeile (nicht mitten in "24:00 h von 40:00 h") */
@@ -173,6 +173,98 @@ h3:has(> .dashboard-blocks-week-total, > .dashboard-blocks-today) {
   white-space: nowrap;
   font-weight: normal;
   color: var(--dashboard-blocks-muted);
+}
+
+/* Woche wechseln und Mitarbeiter wählen: [‹] KW 47 16.11.–22.11. [›] … [Person ▾] */
+.dashboard-blocks-week-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin: 4px 0 0;
+}
+
+.dashboard-blocks-week-steps {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Schlichte Knöpfe: Themes setzen button[type=submit] (auch :hover) als
+   Primärknopf – Selektoren hier bewusst eine Klasse stärker */
+.dashboard-blocks-week-nav button.dashboard-blocks-week-step,
+.dashboard-blocks-week-nav button.dashboard-blocks-week-current {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.dashboard-blocks-week-nav button.dashboard-blocks-week-step {
+  width: 28px;
+  padding: 0;
+}
+
+.dashboard-blocks-week-nav button.dashboard-blocks-week-current {
+  padding: 0 8px;
+  color: var(--dashboard-blocks-muted);
+}
+
+.dashboard-blocks-week-nav button.dashboard-blocks-week-step:hover,
+.dashboard-blocks-week-nav button.dashboard-blocks-week-current:hover {
+  color: inherit;
+  background-color: var(--dashboard-blocks-surface);
+  border: 0;
+}
+
+.dashboard-blocks-week-step .s18 {
+  width: 18px;
+  height: 18px;
+}
+
+.dashboard-blocks-week-label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 0 4px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard-blocks-week-label > span {
+  color: var(--dashboard-blocks-muted);
+}
+
+.dashboard-blocks-week-user {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+}
+
+.dashboard-blocks-week-user select {
+  max-width: 100%;
+}
+
+.dashboard-blocks-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .dashboard-blocks-week {
