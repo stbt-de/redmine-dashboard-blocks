@@ -6,12 +6,12 @@
 # hinzugefügt, verschoben und entfernt werden ("Hinzufügen" oben auf der
 # Seite). Redmine findet sie selbst unter app/views/my/blocks/:
 #
-#   quick_time_entry        Zeit buchen: Ticket suchen, Dauer, buchen
 #   issue_status_tiles      Meine offenen Tickets je Status, überfällig,
 #                           diese Woche erledigt
 #   open_issues_by_project  Meine offenen Tickets je Hauptprojekt
-#   my_week                 Wochenstunden: gebuchte Stunden je Tag gegen die
-#                           Arbeitszeit der Person (WorkSchedule)
+#
+# Die Zeit-Blöcke „Zeit buchen“ und „Wochenstunden“ gehören seit 2.0 zum
+# Plugin Time Autopilot (gleiche Blocknamen, Anordnung bleibt erhalten).
 #
 # Dazu mehrere Dashboards je Benutzer, oben als Reiter (DashboardPages).
 #
@@ -22,8 +22,8 @@ Redmine::Plugin.register :redmine_dashboard_blocks do
   name 'Dashboard Blocks'
   author 'stbt.de'
   author_url 'https://stbt.de/'
-  description 'Blöcke für Meine Seite: Zeit buchen, Tickets nach Status und Projekt, Wochenstunden; mehrere Dashboards als Reiter.'
-  version '1.3.0'
+  description 'Blöcke für Meine Seite: Tickets nach Status und Projekt, Tickets mit wählbarer Zeilenzahl; mehrere Dashboards als Reiter.'
+  version '2.0.0'
   url 'https://github.com/stbt-de/redmine-dashboard-blocks'
   requires_redmine version_or_higher: '6.0.0'
 end
@@ -37,9 +37,3 @@ MyHelper.prepend(RedmineDashboardBlocks::MyHelperPatch) unless MyHelper < Redmin
 
 # Mehrere Dashboards: Wechsel per /my/page?dashboard=<id>
 MyController.include(RedmineDashboardBlocks::MyControllerPatch) unless MyController < RedmineDashboardBlocks::MyControllerPatch
-
-# Mehrfach hinzufügbare Blöcke (wie Redmines "Tickets"): jede Instanz hat
-# eigene Einstellungen (my_week, my_week__1, …), z. B. je Mitarbeiter
-{ 'my_week' => 5 }.each do |name, max|
-  Redmine::MyPage.additional_blocks[name]&.merge!(max_occurs: max)
-end

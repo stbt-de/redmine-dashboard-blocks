@@ -16,23 +16,22 @@ class DashboardBlocksTest < Redmine::IntegrationTest
   def test_bloecke_stehen_zur_auswahl
     get '/my/page'
     assert_response :success
-    %w[quick_time_entry issue_status_tiles open_issues_by_project my_week].each do |block|
+    %w[issue_status_tiles open_issues_by_project].each do |block|
       assert_select 'select#block-select option[value=?]', block
     end
   end
 
   def test_meine_seite_zeigt_alle_bloecke
-    my_page_blocks(@user, :quick_time_entry, :issue_status_tiles, :open_issues_by_project, :my_week)
+    my_page_blocks(@user, :issue_status_tiles, :open_issues_by_project)
     create_assigned_issue(@user)
     get '/my/page'
 
     assert_response :success
-    assert_select '#block-quick_time_entry .dashboard-blocks-quick-time form'
     assert_select '#block-issue_status_tiles .dashboard-blocks-tile', minimum: 3
     assert_select '#block-open_issues_by_project .dashboard-blocks-project'
-    assert_select '#block-my_week .dashboard-blocks-day', minimum: 5
     assert_select 'link[href*="dashboard_blocks"]'
-    assert_select 'script[src*="dashboard_blocks"]'
+    # Zeit-Blöcke gehören seit 2.0 zu Time Autopilot
+    assert_select 'select#block-select option[value=quick_time_entry]', 0
   end
 
   def test_block_per_hinzufuegen
@@ -42,96 +41,10 @@ class DashboardBlocksTest < Redmine::IntegrationTest
     assert_includes @user.reload.pref.my_page_layout['top'], 'issue_status_tiles'
   end
 
-  # Ohne eigene Arbeitszeit: das Wochenziel des Blocks, gleich verteilt
-  def test_wochenziel_einstellen
-    my_page_blocks(@user, :my_week)
-    post '/my/page', params: { settings: { my_week: { target_hours: '32' } } }, xhr: true
-    assert_response :success
-    get '/my/page'
-    assert_select '#block-my_week .dashboard-blocks-week-total', text: /32/
-    assert_select '#block-my_week input[name=?][value=?]', 'settings[my_week][work_hours][1]', '6.4'
-  end
-
-  # Arbeitszeit je Wochentag: gehört der Person, nicht dem Block
-  def test_eigene_arbeitszeit_speichern
-    my_page_blocks(@user, :my_week)
-    post '/my/page', params: { settings: { my_week: { user_id: @user.id.to_s,
-                                                      work_hours: { '1' => '8', '2' => '8', '3' => '8', '4' => '8',
-                                                                    '5' => '6', '6' => '', '7' => '' } } } }, xhr: true
-    assert_response :success
-    assert_equal '6.0', @user.reload.pref[:dashboard_blocks_work_hours]['5'].to_s
-    assert_nil @user.pref.my_page_settings('my_week')[:work_hours]
-    get '/my/page'
-    assert_select '#block-my_week .dashboard-blocks-week-total', text: /38/
-    assert_select '#block-my_week input[name=?][value=?]', 'settings[my_week][work_hours][5]', '6'
-    assert_select '#block-my_week .dashboard-blocks-day-target', minimum: 5
-  end
-
-  def test_fremde_arbeitszeit_nur_als_admin
-    dlopper = User.find(3)
-    my_page_blocks(@user, :my_week)
-    post '/my/page', params: { settings: { my_week: { user_id: dlopper.id.to_s, work_hours: { '1' => '2' } } } },
-                     xhr: true
-    assert_nil dlopper.reload.pref[:dashboard_blocks_work_hours]
-    get '/my/page'
-    assert_select '#block-my_week input[name^=?]', 'settings[my_week][work_hours]', 0
-
-    # Admin stellt die Arbeitszeit von dlopper ein; jsmith sieht dessen Ziel
-    reset!
-    log_user('admin', 'admin')
-    admin = User.find(1)
-    my_page_blocks(admin, :my_week)
-    post '/my/page', params: { settings: { my_week: { user_id: dlopper.id.to_s, work_hours: { '1' => '4', '2' => '4' } } } },
-                     xhr: true
-    assert_equal '4.0', dlopper.reload.pref[:dashboard_blocks_work_hours]['1'].to_s
-
-    reset!
-    log_user('jsmith', 'jsmith')
-    get '/my/page'
-    assert_select '#block-my_week .dashboard-blocks-week-total', text: /8/
-    assert_select '#block-my_week .dashboard-blocks-work-hours-fixed'
-  end
-
-  def test_woche_wechseln_und_mitarbeiter_waehlen
-    my_page_blocks(@user, :my_week)
-    dlopper = User.find(3)
-    get '/my/page'
-    assert_select '#block-my_week select[name=?] option[value=?]', 'settings[my_week][user_id]', dlopper.id.to_s
-    assert_select '#block-my_week button[name=my_week_start]', 2
-
-    # Vorige Woche: Redmine setzt den Block neu ein, die Woche bleibt erhalten
-    previous = RedmineDashboardBlocks::Scope.week_start(@user.today) - 7
-    post '/my/page', params: { my_week_start: previous.iso8601, settings: { my_week: { user_id: dlopper.id.to_s } } },
-                     xhr: true
-    assert_response :success
-    assert_equal dlopper.id.to_s, @user.reload.pref.my_page_settings('my_week')[:user_id]
-    assert_includes response.body, previous.iso8601
-    assert_includes response.body, 'dashboard-blocks-week-current'
-    assert_includes response.body, "v%5Buser_id%5D%5B%5D=#{dlopper.id}"
-  end
-
-  # Woche je Mitarbeiter: der Block lässt sich mehrfach hinzufügen, jede
-  # Instanz merkt sich ihre Person (nach dem Neuladen noch gewählt)
-  def test_woche_mehrfach_mit_eigener_person
-    my_page_blocks(@user)
-    post '/my/add_block', params: { block: 'my_week' }, xhr: true
-    post '/my/add_block', params: { block: 'my_week__1' }, xhr: true
-    assert_equal %w[my_week my_week__1], @user.reload.pref.my_page_layout.values.flatten.grep(/my_week/).sort
-
-    dlopper = User.find(3)
-    post '/my/page', params: { settings: { my_week__1: { user_id: dlopper.id.to_s } } }, xhr: true
-    get '/my/page'
-    assert_select '#block-my_week h3', text: /\AWochenstunden|\AWeekly hours/
-    assert_select '#block-my_week__1 h3', text: /#{dlopper.name}/
-    assert_select '#block-my_week select option[selected][value=?]', @user.id.to_s
-    assert_select '#block-my_week__1 select[name=?] option[selected][value=?]',
-                  'settings[my_week__1][user_id]', dlopper.id.to_s
-  end
-
   # --- Dashboards (Reiter) ----------------------------------------------------
 
   def test_reiter_anlegen_wechseln_umbenennen_loeschen
-    my_page_blocks(@user, :my_week)
+    my_page_blocks(@user, :open_issues_by_project)
     get '/my/page'
     assert_select '#my-page .dashboard-blocks-pages .tabs a.selected', text: /Übersicht|Overview/
     assert_select '#dashboard-blocks-page-new input[name=name]'
@@ -141,13 +54,13 @@ class DashboardBlocksTest < Redmine::IntegrationTest
     follow_redirect!
     assert_select '.dashboard-blocks-pages .tabs a', 2
     assert_select '.dashboard-blocks-pages .tabs a.selected', text: 'Team'
-    assert_select '#block-my_week', 0
+    assert_select '#block-open_issues_by_project', 0
     assert_select '.dashboard-blocks-page-empty'
 
     # Hinzufügen landet im gewählten Dashboard
     post '/my/add_block', params: { block: 'issue_status_tiles' }, xhr: true
     get '/my/page?dashboard=1'
-    assert_select '#block-my_week'
+    assert_select '#block-open_issues_by_project'
     assert_select '#block-issue_status_tiles', 0
     get '/my/page?dashboard=2'
     assert_select '#block-issue_status_tiles'
@@ -160,7 +73,7 @@ class DashboardBlocksTest < Redmine::IntegrationTest
     assert_redirected_to '/my/page?dashboard=1'
     follow_redirect!
     assert_select '.dashboard-blocks-pages .tabs a', 1
-    assert_select '#block-my_week'
+    assert_select '#block-open_issues_by_project'
   end
 
   def test_dashboards_anderer_benutzer_bleiben_unberuehrt
@@ -204,9 +117,9 @@ class DashboardBlocksTest < Redmine::IntegrationTest
 
   # Partials unter my/blocks hält Redmine für Blöcke – eigene Hilfs-Partials
   # dürfen dort nicht liegen, sonst erscheinen sie unter "Hinzufügen"
-  def test_nur_die_vier_bloecke_zur_auswahl
+  def test_nur_die_eigenen_bloecke_zur_auswahl
     plugin_blocks = Redmine::MyPage.additional_blocks.keys
-    assert_equal %w[issue_status_tiles my_week open_issues_by_project quick_time_entry], plugin_blocks.sort
+    assert_equal %w[issue_status_tiles open_issues_by_project], plugin_blocks.sort
   end
 
   def test_tickets_block_zeigt_zehn_und_den_weg_zu_allen
@@ -253,92 +166,10 @@ class DashboardBlocksTest < Redmine::IntegrationTest
     assert_select 'link[href*="dashboard_blocks"]', 0
   end
 
-  # --- Zeit buchen ----------------------------------------------------------
-
-  def test_buchen_mit_stunden_und_minuten
-    issue = create_assigned_issue(@user)
-    assert_difference -> { TimeEntry.count }, 1 do
-      post '/dashboard_blocks/time_entries',
-           params: { issue_id: issue.id, hours: '1:30', spent_on: @user.today.to_s,
-                     activity_id: TimeEntryActivity.shared.active.first.id, comments: 'Schnell gebucht' }
-    end
-    assert_response :success
-
-    entry = TimeEntry.order(:id).last
-    assert_in_delta 1.5, entry.hours
-    assert_equal [issue, @user, 'Schnell gebucht'], [entry.issue, entry.user, entry.comments]
-    body = response.parsed_body
-    assert_equal entry.id, body['id']
-    assert_includes body['message'], "##{issue.id}"
-    assert body['undo']
-  end
-
-  def test_buchen_ohne_recht_verboten
-    Role.find(1).remove_permission!(:log_time)
-    issue = create_assigned_issue(@user)
-    assert_no_difference -> { TimeEntry.count } do
-      post '/dashboard_blocks/time_entries', params: { issue_id: issue.id, hours: '1', spent_on: @user.today.to_s }
-    end
-    assert_response 403
-  end
-
-  def test_buchen_auf_unsichtbares_ticket_verboten
-    issue = Issue.create!(project: Project.find(2), tracker: Project.find(2).trackers.first, author: User.find(1),
-                          subject: 'Fremd', priority: IssuePriority.first)
-    post '/dashboard_blocks/time_entries', params: { issue_id: issue.id, hours: '1', spent_on: @user.today.to_s }
-    assert_response 403
-  end
-
-  def test_fehlende_dauer_mit_fehler_und_link_zum_formular
-    issue = create_assigned_issue(@user)
-    post '/dashboard_blocks/time_entries', params: { issue_id: issue.id, hours: '', spent_on: @user.today.to_s }
-
-    assert_response 422
-    assert response.parsed_body['errors'].any?
-    assert_equal "/issues/#{issue.id}/time_entries/new", response.parsed_body['form_url']
-  end
-
-  def test_rueckgaengig_nur_fuer_eigene_buchung
-    issue = create_assigned_issue(@user)
-    own = create_time_entry(@user, issue, hours: 1, spent_on: @user.today)
-    foreign = create_time_entry(User.find(3), issue, hours: 1, spent_on: @user.today)
-
-    delete "/dashboard_blocks/time_entries/#{foreign.id}"
-    assert_response 404
-    assert TimeEntry.exists?(foreign.id)
-
-    delete "/dashboard_blocks/time_entries/#{own.id}"
-    assert_response :success
-    assert_not TimeEntry.exists?(own.id)
-  end
-
-  def test_suche_liefert_projekt_und_kachel
-    issue = create_assigned_issue(@user, subject: 'Kategorieseiten schneller laden')
-    get '/dashboard_blocks/time_entries/issues', params: { q: 'kategorieseiten' }
-
-    assert_response :success
-    hit = response.parsed_body.detect { |entry| entry['id'] == issue.id }
-    assert_equal ['Kategorieseiten schneller laden', issue.project.name], [hit['subject'], hit['project']]
-    assert_includes hit['tile'], 'dashboard-blocks-project-tile'
-  end
-
-  def test_taetigkeiten_des_projekts
-    issue = create_assigned_issue(@user)
-    get '/dashboard_blocks/time_entries/activities', params: { issue_id: issue.id }
-
-    assert_response :success
-    assert_equal issue.project.activities.map(&:id), response.parsed_body.map { |activity| activity['id'] }
-  end
-
   def issue_query_for_me
     IssueQuery.create!(name: "Meine #{SecureRandom.hex(2)}", user: @user, visibility: IssueQuery::VISIBILITY_PRIVATE,
                        filters: { 'status_id' => { operator: 'o', values: [''] },
                                   'assigned_to_id' => { operator: '=', values: ['me'] } })
   end
 
-  def test_ohne_anmeldung_kein_zugriff
-    reset!
-    get '/dashboard_blocks/time_entries/issues', params: { q: 'x' }, xhr: true
-    assert_response 401
-  end
 end

@@ -1,48 +1,11 @@
 en:
   my:
     blocks:
-      quick_time_entry: Log time
       issue_status_tiles: My issues by status
       open_issues_by_project: My issues by project
-      my_week: Weekly hours
 
   label_dashboard_blocks_overdue: Overdue
   label_dashboard_blocks_closed_this_week: Closed this week
-  label_dashboard_blocks_today: "Today:"
-  label_dashboard_blocks_search_placeholder: "#number, subject or project"
-  label_dashboard_blocks_no_match: No open issue found that you can log time on.
-  label_dashboard_blocks_recent: Recently logged
-  label_dashboard_blocks_open_form: Log in the full form
-  label_dashboard_blocks_not_allowed: You are not allowed to log time in any project.
-  label_dashboard_blocks_week_total: "%{total} of %{target}"
-  label_dashboard_blocks_week_target: Weekly target (hours)
-  label_dashboard_blocks_week_chart: Hours logged per day
-  label_dashboard_blocks_week_top_project: "Most time: %{project} (%{hours})"
-  label_dashboard_blocks_week_entries: View entries
-  label_dashboard_blocks_week_previous: Previous week
-  label_dashboard_blocks_week_next: Next week
-  label_dashboard_blocks_week_current: This week
-  label_dashboard_blocks_week_number: "Week %{number}"
-  label_dashboard_blocks_week_user: Hours of
-  label_dashboard_blocks_week_of: "Weekly hours: %{name}"
-  label_dashboard_blocks_work_hours: My working hours (per day)
-  label_dashboard_blocks_work_hours_of: "Working hours of %{name} (per day)"
-  label_dashboard_blocks_day_target: "Target %{hours}"
-  text_dashboard_blocks_work_hours: The weekly target is the sum. Days with 0 count as days off. Applies to everyone viewing this week.
-  text_dashboard_blocks_work_hours_fixed: "The weekly target follows the working hours of %{name}. Only %{name} and administrators can change them."
-  date_format_dashboard_blocks_day: "%b %-d"
-
-  button_dashboard_blocks_log: Log
-  button_dashboard_blocks_undo: Undo
-  button_dashboard_blocks_clear: Clear selection
-
-  notice_dashboard_blocks_time_logged: "%{hours} logged on %{issue}"
-  notice_dashboard_blocks_undone: Entry removed
-
-  error_dashboard_blocks_choose_issue: Please choose an issue first.
-  error_dashboard_blocks_issue_not_loggable: You cannot log time on this issue.
-  error_dashboard_blocks_not_found: Entry not found or not editable.
-  error_dashboard_blocks_failed: Something went wrong. Please reload the page.
 
   label_dashboard_blocks_choose_query: "Query"
   text_dashboard_blocks_no_query: "This block shows a saved issue query – there is none yet."

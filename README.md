@@ -1,26 +1,18 @@
 # Dashboard Blocks – more useful blocks for Redmine's "My page"
 
 Redmine's *My page* is a good place to start the day – but its blocks are mostly lists.
-This plugin adds four blocks for what you look for every morning and evening: log time
-quickly, see where your issues stand, and how your week is going.
+This plugin adds blocks that show at a glance where your issues stand, and lets everyone
+keep several dashboards.
 
-- **Log time** – find an issue by number, subject or project, pick a duration (0:15,
-  0:30, 1:00, 2:00 or your own), day, activity and comment, and log it without leaving
-  the page. *Undo* right after logging, and your recently logged issues are one click
-  away.
+> **Time blocks moved.** Since 2.0 the blocks *Log time* and *Weekly hours* are part of
+> [Time Autopilot](https://github.com/stbt-de/redmine-time-autopilot), together with
+> working hours per weekday and time proposals. See *Upgrading to 2.0* below.
+
 - **My issues by status** – your open issues as tiles per status, plus *Overdue* and
   *Closed this week*. Every tile opens the matching filtered issue list.
 - **My issues by project** – your open issues per top-level project; subprojects count
   towards their parent (with customer projects: per customer). Shows project icons when
   [redmine-project-icons](https://github.com/stbt-de/redmine-project-icons) is installed.
-- **Weekly hours** – hours logged per day against each person's working hours, and where
-  most of the time went. Working hours are set per weekday in the block's options (e.g.
-  Monday–Thursday 8 h, Friday 4 h); the weekly target is their sum and each bar shows the
-  day's target as a dashed line. Without working hours: a weekly target (default 40 h)
-  spread over the working days. Step back and forth between
-  weeks, and pick a colleague to see their hours instead of your own. Can be added up to five times
-  (e.g. one per colleague); each block remembers its person and is titled with their name.
-
 The blocks are added, moved and removed like Redmine's own blocks (*My page → Add*).
 
 **Several dashboards** – each user can keep more than one *My page*, e.g. *Overview*,
@@ -47,10 +39,6 @@ stay Redmine's own. Works with any theme;
 *Shown with the [Klar theme](https://github.com/stbt-de/redmine-klar-theme) and example data.*
 
 ![My page with the blocks](docs/screenshots/my-page.png)
-
-Log time – search by number, subject or project:
-
-![Log time with search](docs/screenshots/log-time.png)
 
 | My page on mobile |
 | --- |
@@ -91,29 +79,11 @@ German.
 ## How it works
 
 **Permissions** are Redmine's own: the blocks only count and show issues the user can
-see. *Log time* only offers open issues in projects where the user may log time, uses
-the project's activities and Redmine's validation (required fields, time format from
-*Administration → Settings → Display*). If an entry needs more than the block offers –
-for example a required custom field – the block links to the full form. *Undo* is
-available when the user may edit their own time entries.
+see.
 
 **"My issues"** means issues assigned to the user or to one of their groups, as in
-Redmine's own *Issues assigned to me*. Weeks start on the day set under *Administration →
-Settings → Display* (or the user's language); non-working days only appear in *Weekly hours*
-when time was logged on one of them – then all of them (Saturday and Sunday together).
-
-**Working hours** belong to the person, not to the block: whoever looks at a colleague's
-week sees the colleague's target. Only the person and administrators can change them;
-days with 0 count as days off.
-
-**Whose hours** *Weekly hours* can show: the user's own, plus members of the projects in which
-they may view spent time (administrators: all active users). Which entries appear follows
-Redmine's own rules – a role that only sees its own time entries shows nothing for others.
-
-**Log time** uses a small JSON endpoint of the plugin (`/dashboard_blocks/time_entries`)
-for the issue search, the project's activities, logging and undo; it works with the
-browser session like the rest of Redmine. The stylesheet and script are only loaded on
-*My page*.
+Redmine's own *Issues assigned to me*. The week for *Closed this week* starts on the day set under *Administration → Settings →
+Display* (or the user's language). The stylesheet is only loaded on *My page*.
 
 ### For theme authors
 
@@ -122,6 +92,20 @@ on `:root`, so a theme can restyle them without a specificity fight:
 `--dashboard-blocks-border`, `--dashboard-blocks-muted`, `--dashboard-blocks-surface`,
 `--dashboard-blocks-accent`, `--dashboard-blocks-alert-bg`, `--dashboard-blocks-alert-text`,
 `--dashboard-blocks-success-bg`, `--dashboard-blocks-success-text`.
+
+## Upgrading to 2.0
+
+2.0 removes the blocks *Log time* and *Weekly hours*; they now live in
+[Time Autopilot](https://github.com/stbt-de/redmine-time-autopilot) under the same block
+names. To keep them:
+
+1. Install Time Autopilot (it needs a database migration), then update Dashboard Blocks.
+2. Restart Redmine.
+
+Existing *My page* arrangements, block settings (weekly target, chosen colleague) and
+working hours stay as they are – nothing has to be added again. Working hours are now set
+under *My account* instead of the block's options. Without Time Autopilot, Redmine simply
+skips the two blocks.
 
 ## Development
 

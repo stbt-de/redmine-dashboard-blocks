@@ -8,8 +8,8 @@ class DashboardPagesTest < ActiveSupport::TestCase
 
   def setup
     @user = User.find(2)
-    @user.pref.my_page_layout = { 'top' => ['issuequery'], 'left' => ['my_week'], 'right' => [] }
-    @user.pref.my_page_settings = { 'my_week' => { target_hours: '32' } }
+    @user.pref.my_page_layout = { 'top' => ['issuequery'], 'left' => ['issue_status_tiles'], 'right' => [] }
+    @user.pref.my_page_settings = { 'issue_status_tiles' => { target_hours: '32' } }
     @user.pref[:dashboard_blocks_pages] = nil
     @user.pref.save!
   end
@@ -38,21 +38,21 @@ class DashboardPagesTest < ActiveSupport::TestCase
 
   def test_wechsel_tauscht_anordnung_und_einstellungen
     team = pages.create('Team')
-    @user.reload.pref.add_block('my_week')
-    @user.pref.update_block_settings('my_week', user_id: '3')
+    @user.reload.pref.add_block('issue_status_tiles')
+    @user.pref.update_block_settings('issue_status_tiles', user_id: '3')
     @user.pref.save!
 
     assert pages.switch(1)
     @user.reload
-    assert_equal ['my_week'], @user.pref.my_page_layout['left']
+    assert_equal ['issue_status_tiles'], @user.pref.my_page_layout['left']
     assert_equal ['issuequery'], @user.pref.my_page_layout['top']
-    assert_equal '32', @user.pref.my_page_settings('my_week')[:target_hours]
-    assert_nil @user.pref.my_page_settings('my_week')[:user_id]
+    assert_equal '32', @user.pref.my_page_settings('issue_status_tiles')[:target_hours]
+    assert_nil @user.pref.my_page_settings('issue_status_tiles')[:user_id]
 
     assert pages.switch(team)
     @user.reload
-    assert_equal ['my_week'], @user.pref.my_page_layout['top']
-    assert_equal '3', @user.pref.my_page_settings('my_week')[:user_id]
+    assert_equal ['issue_status_tiles'], @user.pref.my_page_layout['top']
+    assert_equal '3', @user.pref.my_page_settings('issue_status_tiles')[:user_id]
   end
 
   def test_wechsel_auf_unbekanntes_oder_aktives_dashboard

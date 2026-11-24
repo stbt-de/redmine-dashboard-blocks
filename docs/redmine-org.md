@@ -15,12 +15,12 @@ redmine_dashboard_blocks
 
 More useful blocks for Redmine's *My page*, and several dashboards per user.
 
-* *Log time* – find an issue by number, subject or project, pick a duration, log it without leaving the page; undo, recently logged issues.
 * *My issues by status* – open issues as tiles per status, plus overdue and closed this week; every tile opens the filtered issue list.
 * *My issues by project* – open issues per top-level project (subprojects count towards their parent).
-* *Weekly hours* – hours per day against each person's working hours (set per weekday, e.g. Friday 4 h); step through weeks, pick a colleague; can be added up to five times.
 * *Several dashboards* – e.g. Overview, Team, Time as tabs above the columns, each with its own blocks and settings.
 * Redmine's own *Issues* block: choose 10, 25, 50 or all rows.
+
+Since 2.0 the blocks *Log time* and *Weekly hours* are part of "Time Autopilot":https://github.com/stbt-de/redmine-time-autopilot.
 
 Works with any theme; styled for the "Klar theme":https://github.com/stbt-de/redmine-klar-theme. English and German.
 
@@ -51,7 +51,7 @@ Restart Redmine. No database migration is needed. Each user adds the blocks on *
 
 ## Plugin version
 
-1.3.0
+2.0.0
 
 ## Redmine compatibility
 

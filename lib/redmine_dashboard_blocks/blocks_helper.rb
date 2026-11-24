@@ -17,12 +17,6 @@ module RedmineDashboardBlocks
                   'aria-hidden': 'true')
     end
 
-    # Stunden wie in Redmine formatiert ("1:30 h" bzw. "1.50 h", je nach
-    # Einstellung "Zeitspannenformat")
-    def dashboard_blocks_hours(hours)
-      l_hours_short(hours)
-    end
-
     # Ticketliste mit Filtern (siehe StatusTiles.filters)
     def dashboard_blocks_issues_path(filters, project: nil)
       project ? project_issues_path(project, filters) : issues_path(filters)
