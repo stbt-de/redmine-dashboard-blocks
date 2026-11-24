@@ -42,12 +42,54 @@ class DashboardBlocksTest < Redmine::IntegrationTest
     assert_includes @user.reload.pref.my_page_layout['top'], 'issue_status_tiles'
   end
 
+  # Ohne eigene Arbeitszeit: das Wochenziel des Blocks, gleich verteilt
   def test_wochenziel_einstellen
     my_page_blocks(@user, :my_week)
     post '/my/page', params: { settings: { my_week: { target_hours: '32' } } }, xhr: true
     assert_response :success
     get '/my/page'
-    assert_select '#block-my_week input[name=?][value=?]', 'settings[my_week][target_hours]', '32.0'
+    assert_select '#block-my_week .dashboard-blocks-week-total', text: /32/
+    assert_select '#block-my_week input[name=?][value=?]', 'settings[my_week][work_hours][1]', '6.4'
+  end
+
+  # Arbeitszeit je Wochentag: gehört der Person, nicht dem Block
+  def test_eigene_arbeitszeit_speichern
+    my_page_blocks(@user, :my_week)
+    post '/my/page', params: { settings: { my_week: { user_id: @user.id.to_s,
+                                                      work_hours: { '1' => '8', '2' => '8', '3' => '8', '4' => '8',
+                                                                    '5' => '6', '6' => '', '7' => '' } } } }, xhr: true
+    assert_response :success
+    assert_equal '6.0', @user.reload.pref[:dashboard_blocks_work_hours]['5'].to_s
+    assert_nil @user.pref.my_page_settings('my_week')[:work_hours]
+    get '/my/page'
+    assert_select '#block-my_week .dashboard-blocks-week-total', text: /38/
+    assert_select '#block-my_week input[name=?][value=?]', 'settings[my_week][work_hours][5]', '6'
+    assert_select '#block-my_week .dashboard-blocks-day-target', minimum: 5
+  end
+
+  def test_fremde_arbeitszeit_nur_als_admin
+    dlopper = User.find(3)
+    my_page_blocks(@user, :my_week)
+    post '/my/page', params: { settings: { my_week: { user_id: dlopper.id.to_s, work_hours: { '1' => '2' } } } },
+                     xhr: true
+    assert_nil dlopper.reload.pref[:dashboard_blocks_work_hours]
+    get '/my/page'
+    assert_select '#block-my_week input[name^=?]', 'settings[my_week][work_hours]', 0
+
+    # Admin stellt die Arbeitszeit von dlopper ein; jsmith sieht dessen Ziel
+    reset!
+    log_user('admin', 'admin')
+    admin = User.find(1)
+    my_page_blocks(admin, :my_week)
+    post '/my/page', params: { settings: { my_week: { user_id: dlopper.id.to_s, work_hours: { '1' => '4', '2' => '4' } } } },
+                     xhr: true
+    assert_equal '4.0', dlopper.reload.pref[:dashboard_blocks_work_hours]['1'].to_s
+
+    reset!
+    log_user('jsmith', 'jsmith')
+    get '/my/page'
+    assert_select '#block-my_week .dashboard-blocks-week-total', text: /8/
+    assert_select '#block-my_week .dashboard-blocks-work-hours-fixed'
   end
 
   def test_woche_wechseln_und_mitarbeiter_waehlen

@@ -10,7 +10,8 @@
 #   issue_status_tiles      Meine offenen Tickets je Status, überfällig,
 #                           diese Woche erledigt
 #   open_issues_by_project  Meine offenen Tickets je Hauptprojekt
-#   my_week                 Wochenstunden: gebuchte Stunden je Tag gegen ein Wochenziel
+#   my_week                 Wochenstunden: gebuchte Stunden je Tag gegen die
+#                           Arbeitszeit der Person (WorkSchedule)
 #
 # Dazu mehrere Dashboards je Benutzer, oben als Reiter (DashboardPages).
 #
@@ -22,7 +23,7 @@ Redmine::Plugin.register :redmine_dashboard_blocks do
   author 'stbt.de'
   author_url 'https://stbt.de/'
   description 'Blöcke für Meine Seite: Zeit buchen, Tickets nach Status und Projekt, Wochenstunden; mehrere Dashboards als Reiter.'
-  version '1.2.0'
+  version '1.3.0'
   url 'https://github.com/stbt-de/redmine-dashboard-blocks'
   requires_redmine version_or_higher: '6.0.0'
 end

@@ -147,6 +147,41 @@ class BlocksDataTest < ActiveSupport::TestCase
     assert_in_delta 40, RedmineDashboardBlocks::WeekSummary.new(@user, target: '-3').target
   end
 
+  # Arbeitszeit je Wochentag: Ziel ist die Summe, freie Tage nach der Person
+  def test_arbeitszeit_je_wochentag
+    with_settings non_working_week_days: %w[6 7], start_of_week: '1' do
+      TimeEntry.where(user_id: @user.id).delete_all
+      RedmineDashboardBlocks::WorkSchedule.new(@user)
+                                          .update('1' => '8', '2' => '8', '3' => '7,5', '4' => '8', '5' => '', '6' => '4')
+      week = RedmineDashboardBlocks::WeekSummary.new(@user, target: '40')
+      assert week.scheduled?
+      assert_in_delta 35.5, week.target
+      assert_equal [1, 2, 3, 4, 6], week.days.map { |day| day.date.cwday }
+      assert_in_delta 7.5, week.days.third.target
+      assert_in_delta 8, week.daily_target
+
+      # Alles leer: Einstellung weg, wieder das Wochenziel des Blocks
+      RedmineDashboardBlocks::WorkSchedule.new(@user).update('1' => '0')
+      week = RedmineDashboardBlocks::WeekSummary.new(@user.reload, target: '30')
+      assert_not week.scheduled?
+      assert_in_delta 30, week.target
+      assert_in_delta 6, week.days.first.target
+    end
+  end
+
+  def test_arbeitszeit_kappt_unsinnige_werte
+    RedmineDashboardBlocks::WorkSchedule.new(@user).update('1' => '30', '2' => '-4', '3' => 'abc', '9' => '8')
+    assert_equal({ 1 => 24.0, 2 => 0.0, 3 => 0.0, 4 => 0.0, 5 => 0.0, 6 => 0.0, 7 => 0.0 },
+                 RedmineDashboardBlocks::WorkSchedule.new(@user.reload).hours)
+  end
+
+  def test_arbeitszeit_aendern_nur_selbst_oder_admin
+    dlopper = User.find(3)
+    assert RedmineDashboardBlocks::WorkSchedule.editable?(@user, @user)
+    assert_not RedmineDashboardBlocks::WorkSchedule.editable?(@user, dlopper)
+    assert RedmineDashboardBlocks::WorkSchedule.editable?(User.find(1), dlopper)
+  end
+
   # --- Zeit buchen: Suche ---------------------------------------------------
 
   def test_suche_nach_nummer_titel_und_projekt

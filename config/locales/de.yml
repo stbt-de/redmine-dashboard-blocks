@@ -25,6 +25,11 @@ de:
   label_dashboard_blocks_week_number: "KW %{number}"
   label_dashboard_blocks_week_user: Stunden von
   label_dashboard_blocks_week_of: "Wochenstunden: %{name}"
+  label_dashboard_blocks_work_hours: Meine Arbeitszeit (Stunden je Tag)
+  label_dashboard_blocks_work_hours_of: "Arbeitszeit von %{name} (Stunden je Tag)"
+  label_dashboard_blocks_day_target: "Ziel %{hours}"
+  text_dashboard_blocks_work_hours: Das Wochenziel ist die Summe. Tage mit 0 gelten als frei. Gilt für alle, die diese Woche ansehen.
+  text_dashboard_blocks_work_hours_fixed: "Das Wochenziel folgt der Arbeitszeit von %{name}. Ändern können das %{name} selbst und Admins."
   date_format_dashboard_blocks_day: "%d.%m."
 
   button_dashboard_blocks_log: Buchen

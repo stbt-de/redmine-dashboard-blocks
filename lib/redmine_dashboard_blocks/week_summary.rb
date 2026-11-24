@@ -5,11 +5,13 @@ module RedmineDashboardBlocks
   # Wochenziel. Wahlweise für einen anderen Benutzer, dessen Zeiten der
   # Betrachter sehen darf, und für frühere oder spätere Wochen.
   #
-  # Arbeitstage nach Redmines Einstellung "Arbeitsfreie Tage"; wurde an einem
-  # freien Tag gebucht, erscheinen alle freien Tage der Woche (Samstag und
-  # Sonntag gemeinsam, nicht nur der eine).
+  # Ziel und Arbeitstage kommen aus der Arbeitszeit der Person (WorkSchedule:
+  # Stunden je Wochentag). Ist keine eingestellt, gilt das Wochenziel des
+  # Blocks, gleich verteilt auf Redmines Arbeitstage ("Arbeitsfreie Tage").
+  # Wurde an einem freien Tag gebucht, erscheinen alle freien Tage der Woche
+  # (Samstag und Sonntag gemeinsam, nicht nur der eine).
   class WeekSummary
-    Day = Struct.new(:date, :hours, :today, keyword_init: true)
+    Day = Struct.new(:date, :hours, :target, :today, keyword_init: true)
 
     DEFAULT_TARGET = 40
 
@@ -40,8 +42,15 @@ module RedmineDashboardBlocks
       @viewer = viewer
       @user = user || viewer
       @date = parse_date(date) || viewer.today
-      @target = target.to_s.tr(',', '.').to_f
+      @schedule = WorkSchedule.new(@user).hours
+      @schedule = nil unless @schedule&.values&.sum.to_f.positive?
+      @target = @schedule ? @schedule.values.sum : target.to_s.tr(',', '.').to_f
       @target = DEFAULT_TARGET unless @target.positive?
+    end
+
+    # Ziel aus der Arbeitszeit der Person (nicht aus dem Block)?
+    def scheduled?
+      @schedule.present?
     end
 
     def start
@@ -79,7 +88,7 @@ module RedmineDashboardBlocks
         (start..finish).filter_map do |date|
           next if non_working?(date) && !weekend
 
-          Day.new(date: date, hours: hours_by_day[date].to_f, today: date == @viewer.today)
+          Day.new(date: date, hours: hours_by_day[date].to_f, target: target_for(date), today: date == @viewer.today)
         end
       end
     end
@@ -88,10 +97,18 @@ module RedmineDashboardBlocks
       hours_by_day.values.sum.to_f
     end
 
-    # Ziel je Arbeitstag (für die Höhe der Balken)
-    def daily_target
-      working = (start..finish).count { |date| !non_working?(date) }
+    # Ziel eines Tages: laut Arbeitszeit, sonst das Wochenziel gleich verteilt
+    def target_for(date)
+      return @schedule[date.cwday] if @schedule
+      return 0.0 if non_working?(date)
+
+      working = (start..finish).count { |day| !non_working?(day) }
       working.positive? ? target / working : target
+    end
+
+    # Höchstes Tagesziel (für die Höhe der Balken)
+    def daily_target
+      (start..finish).map { |date| target_for(date) }.max.to_f
     end
 
     # Projekt mit den meisten Stunden in dieser Woche (nur sichtbare)
@@ -116,6 +133,8 @@ module RedmineDashboardBlocks
     end
 
     def non_working?(date)
+      return @schedule[date.cwday] <= 0 if @schedule
+
       Array(Setting.non_working_week_days).map(&:to_i).include?(date.cwday)
     end
 

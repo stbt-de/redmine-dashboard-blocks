@@ -7,6 +7,7 @@
 <% week = RedmineDashboardBlocks::WeekSummary.new(user, target: settings[:target_hours], user: person,
                                                   date: params[:my_week_start]) %>
 <% top = week.top_project %>
+<% schedule_editable = RedmineDashboardBlocks::WorkSchedule.editable?(user, person) %>
 <% scale = [week.daily_target, week.days.map(&:hours).max.to_f].max %>
 
 <div class="contextual">
@@ -25,11 +26,30 @@
 <div id="<%= block %>-settings" style="display: none;">
   <%= form_tag(my_page_path, remote: true) do %>
     <%= hidden_field_tag 'my_week_start', week.start.iso8601, id: nil %>
-    <p>
-      <label for="<%= block %>-target"><%= l(:label_dashboard_blocks_week_target) %></label>
-      <%= number_field_tag "settings[#{block}][target_hours]", week.target, id: "#{block}-target",
-                           min: 1, max: 168, step: 0.5, size: 5 %>
-    </p>
+    <%= hidden_field_tag "settings[#{block}][user_id]", person.id, id: nil %>
+    <% if schedule_editable %>
+      <%# Arbeitszeit der gezeigten Person, Montag bis Sonntag %>
+      <fieldset class="dashboard-blocks-work-hours">
+        <legend><%= week.own? ? l(:label_dashboard_blocks_work_hours) : l(:label_dashboard_blocks_work_hours_of, name: person.name) %></legend>
+        <% (1..7).each do |cwday| %>
+          <% date = week.start + ((cwday - week.start.cwday) % 7) %>
+          <label>
+            <span><%= ::I18n.t('date.abbr_day_names')[cwday % 7] %></span>
+            <%= number_field_tag "settings[#{block}][work_hours][#{cwday}]", format('%g', week.target_for(date).round(2)),
+                                 id: nil, min: 0, max: 24, step: 0.25 %>
+          </label>
+        <% end %>
+        <em class="info"><%= l(:text_dashboard_blocks_work_hours) %></em>
+      </fieldset>
+    <% elsif !week.scheduled? %>
+      <p>
+        <label for="<%= block %>-target"><%= l(:label_dashboard_blocks_week_target) %></label>
+        <%= number_field_tag "settings[#{block}][target_hours]", week.target, id: "#{block}-target",
+                             min: 1, max: 168, step: 0.5, size: 5 %>
+      </p>
+    <% else %>
+      <p class="dashboard-blocks-work-hours-fixed"><%= l(:text_dashboard_blocks_work_hours_fixed, name: person.name) %></p>
+    <% end %>
     <p>
       <%= submit_tag l(:button_save) %>
       <%= link_to_function l(:button_cancel), "$('##{block}-settings').toggle();" %>
@@ -74,8 +94,11 @@
       <span class="dashboard-blocks-day-hours"><%= day.hours.positive? ? format_hours(day.hours) : '–' %></span>
       <span class="dashboard-blocks-day-bar" aria-hidden="true">
         <span style="height: <%= scale.positive? ? [(day.hours * 100.0 / scale).round, 100].min : 0 %>%"></span>
+        <% if day.target.positive? && scale.positive? %>
+          <i class="dashboard-blocks-day-target" style="bottom: <%= [(day.target * 100.0 / scale).round, 100].min %>%"></i>
+        <% end %>
       </span>
-      <span class="dashboard-blocks-day-name" title="<%= format_date(day.date) %>"><%= ::I18n.t('date.abbr_day_names')[day.date.wday] %></span>
+      <span class="dashboard-blocks-day-name" title="<%= format_date(day.date) %><%= " · #{l(:label_dashboard_blocks_day_target, hours: dashboard_blocks_hours(day.target))}" if day.target.positive? %>"><%= ::I18n.t('date.abbr_day_names')[day.date.wday] %></span>
     </li>
   <% end %>
 </ol>

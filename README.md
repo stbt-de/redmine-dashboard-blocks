@@ -13,8 +13,11 @@ quickly, see where your issues stand, and how your week is going.
 - **My issues by project** – your open issues per top-level project; subprojects count
   towards their parent (with customer projects: per customer). Shows project icons when
   [redmine-project-icons](https://github.com/stbt-de/redmine-project-icons) is installed.
-- **Weekly hours** – hours logged per day against a weekly target (set in the block's
-  options, default 40 h), and where most of the time went. Step back and forth between
+- **Weekly hours** – hours logged per day against each person's working hours, and where
+  most of the time went. Working hours are set per weekday in the block's options (e.g.
+  Monday–Thursday 8 h, Friday 4 h); the weekly target is their sum and each bar shows the
+  day's target as a dashed line. Without working hours: a weekly target (default 40 h)
+  spread over the working days. Step back and forth between
   weeks, and pick a colleague to see their hours instead of your own. Can be added up to five times
   (e.g. one per colleague); each block remembers its person and is titled with their name.
 
@@ -98,6 +101,10 @@ available when the user may edit their own time entries.
 Redmine's own *Issues assigned to me*. Weeks start on the day set under *Administration →
 Settings → Display* (or the user's language); non-working days only appear in *Weekly hours*
 when time was logged on one of them – then all of them (Saturday and Sunday together).
+
+**Working hours** belong to the person, not to the block: whoever looks at a colleague's
+week sees the colleague's target. Only the person and administrators can change them;
+days with 0 count as days off.
 
 **Whose hours** *Weekly hours* can show: the user's own, plus members of the projects in which
 they may view spent time (administrators: all active users). Which entries appear follows
