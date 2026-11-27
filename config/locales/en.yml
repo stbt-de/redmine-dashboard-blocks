@@ -3,6 +3,7 @@ en:
     blocks:
       issue_status_tiles: My issues by status
       open_issues_by_project: My issues by project
+      recent_issues: Recently edited issues
 
   label_dashboard_blocks_overdue: Overdue
   label_dashboard_blocks_closed_this_week: Closed this week

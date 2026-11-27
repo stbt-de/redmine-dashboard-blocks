@@ -9,6 +9,8 @@
 #   issue_status_tiles      Meine offenen Tickets je Status, überfällig,
 #                           diese Woche erledigt
 #   open_issues_by_project  Meine offenen Tickets je Hauptprojekt
+#   recent_issues           Tickets, die ich zuletzt angelegt, geändert
+#                           oder kommentiert habe
 #
 # Die Zeit-Blöcke „Zeit buchen“ und „Wochenstunden“ gehören seit 2.0 zum
 # Plugin Time Autopilot (gleiche Blocknamen, Anordnung bleibt erhalten).
@@ -22,8 +24,8 @@ Redmine::Plugin.register :redmine_dashboard_blocks do
   name 'Dashboard Blocks'
   author 'stbt.de'
   author_url 'https://stbt.de/'
-  description 'Blöcke für Meine Seite: Tickets nach Status und Projekt, Tickets mit wählbarer Zeilenzahl; mehrere Dashboards als Reiter.'
-  version '2.0.0'
+  description 'Blöcke für Meine Seite: Tickets nach Status und Projekt, zuletzt bearbeitete Tickets, Tickets mit wählbarer Zeilenzahl; mehrere Dashboards als Reiter.'
+  version '2.1.0'
   url 'https://github.com/stbt-de/redmine-dashboard-blocks'
   requires_redmine version_or_higher: '6.0.0'
 end

@@ -13,6 +13,8 @@ keep several dashboards.
 - **My issues by project** – your open issues per top-level project; subprojects count
   towards their parent (with customer projects: per customer). Shows project icons when
   [redmine-project-icons](https://github.com/stbt-de/redmine-project-icons) is installed.
+- **Recently edited issues** – the ten issues you last created, changed or commented on,
+  newest first, each as a link with its project icon; closed issues are struck through.
 The blocks are added, moved and removed like Redmine's own blocks (*My page → Add*).
 
 **Several dashboards** – each user can keep more than one *My page*, e.g. *Overview*,

@@ -3,6 +3,7 @@ de:
     blocks:
       issue_status_tiles: Meine Tickets nach Status
       open_issues_by_project: Meine Tickets nach Projekt
+      recent_issues: Zuletzt bearbeitete Tickets
 
   label_dashboard_blocks_overdue: Überfällig
   label_dashboard_blocks_closed_this_week: Diese Woche erledigt

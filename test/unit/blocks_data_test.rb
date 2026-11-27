@@ -71,4 +71,39 @@ class BlocksDataTest < ActiveSupport::TestCase
     rows = RedmineDashboardBlocks::ProjectOverview.new(@user).rows
     assert_equal [project], rows.map(&:project)
   end
+
+  # --- Zuletzt bearbeitet ---------------------------------------------------
+
+  def test_zuletzt_bearbeitet_neueste_eigene_aenderung_zuerst
+    older = create_assigned_issue(@user)
+    newer = create_assigned_issue(@user)
+    foreign = create_assigned_issue(@user)
+    Journal.create!(journalized: newer, user: @user, notes: 'a', created_on: 2.minutes.from_now)
+    Journal.create!(journalized: older, user: @user, notes: 'b', created_on: 5.minutes.from_now)
+    Journal.create!(journalized: foreign, user: User.find(1), notes: 'c', created_on: 9.minutes.from_now)
+
+    issues = RedmineDashboardBlocks::RecentIssues.new(@user).issues
+    assert_equal [older, newer], issues.first(2)
+    assert_not_includes issues, foreign
+  end
+
+  def test_zuletzt_bearbeitet_enthaelt_selbst_angelegte_und_geschlossene
+    issue = create_assigned_issue(@user, author: @user, status: IssueStatus.find(5))
+    Issue.where(id: issue.id).update_all(created_on: 5.minutes.from_now)
+
+    assert_equal issue, RedmineDashboardBlocks::RecentIssues.new(@user).issues.first
+  end
+
+  def test_zuletzt_bearbeitet_nur_sichtbare_und_hoechstens_zehn
+    Project.find(2).update_column(:is_public, false)
+    Member.where(project_id: 2, user_id: @user.id).destroy_all
+    hidden = create_assigned_issue(@user, project: Project.find(2))
+    Issue.where(id: hidden.id).update_all(assigned_to_id: nil)
+    Journal.create!(journalized: hidden, user: @user, notes: 'x', created_on: 9.minutes.from_now)
+    12.times { |i| Journal.create!(journalized: create_assigned_issue(@user), user: @user, notes: 'y', created_on: i.minutes.from_now) }
+
+    issues = RedmineDashboardBlocks::RecentIssues.new(@user).issues
+    assert_equal 10, issues.size
+    assert_not_includes issues, hidden
+  end
 end

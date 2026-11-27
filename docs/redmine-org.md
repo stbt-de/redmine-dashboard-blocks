@@ -17,6 +17,7 @@ More useful blocks for Redmine's *My page*, and several dashboards per user.
 
 * *My issues by status* – open issues as tiles per status, plus overdue and closed this week; every tile opens the filtered issue list.
 * *My issues by project* – open issues per top-level project (subprojects count towards their parent).
+* *Recently edited issues* – the ten issues you last created, changed or commented on.
 * *Several dashboards* – e.g. Overview, Team, Time as tabs above the columns, each with its own blocks and settings.
 * Redmine's own *Issues* block: choose 10, 25, 50 or all rows.
 
@@ -51,7 +52,7 @@ Restart Redmine. No database migration is needed. Each user adds the blocks on *
 
 ## Plugin version
 
-2.0.0
+2.1.0
 
 ## Redmine compatibility
 

@@ -16,7 +16,7 @@ class DashboardBlocksTest < Redmine::IntegrationTest
   def test_bloecke_stehen_zur_auswahl
     get '/my/page'
     assert_response :success
-    %w[issue_status_tiles open_issues_by_project].each do |block|
+    %w[issue_status_tiles open_issues_by_project recent_issues].each do |block|
       assert_select 'select#block-select option[value=?]', block
     end
   end
@@ -32,6 +32,17 @@ class DashboardBlocksTest < Redmine::IntegrationTest
     assert_select 'link[href*="dashboard_blocks"]'
     # Zeit-Blöcke gehören seit 2.0 zu Time Autopilot
     assert_select 'select#block-select option[value=quick_time_entry]', 0
+  end
+
+  def test_zuletzt_bearbeitete_tickets_als_links
+    my_page_blocks(@user, :recent_issues)
+    issue = create_assigned_issue(@user)
+    Journal.create!(journalized: issue, user: @user, notes: 'Notiz', created_on: 5.minutes.from_now)
+    get '/my/page'
+
+    assert_response :success
+    assert_select '#block-recent_issues a.dashboard-blocks-recent-issue[href=?]', "/issues/#{issue.id}",
+                  text: /##{issue.id} #{issue.subject}/
   end
 
   def test_block_per_hinzufuegen
@@ -119,7 +130,7 @@ class DashboardBlocksTest < Redmine::IntegrationTest
   # dürfen dort nicht liegen, sonst erscheinen sie unter "Hinzufügen"
   def test_nur_die_eigenen_bloecke_zur_auswahl
     plugin_blocks = Redmine::MyPage.additional_blocks.keys
-    assert_equal %w[issue_status_tiles open_issues_by_project], plugin_blocks.sort
+    assert_equal %w[issue_status_tiles open_issues_by_project recent_issues], plugin_blocks.sort
   end
 
   def test_tickets_block_zeigt_zehn_und_den_weg_zu_allen

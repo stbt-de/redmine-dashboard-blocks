@@ -157,6 +157,80 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* --- Zuletzt bearbeitete Tickets ------------------------------------------
+   Ticket als Pille mit Projekt-Kachel, wie "Zuletzt gebucht" in Time Autopilot */
+
+.dashboard-blocks-recent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Breite begrenzt das li: am Link allein bliebe das li so breit wie der
+   ungekürzte Text, die Abstände würden ungleich */
+.dashboard-blocks-recent > li {
+  display: flex;
+  min-width: 0;
+  max-width: min(300px, 100%);
+}
+
+/* a.…: redmine_project_icons macht Links mit Icon zu inline-flex mit eigenem Abstand */
+.dashboard-blocks-recent > li > a.dashboard-blocks-recent-issue {
+  display: flex;
+  gap: 6px;
+}
+
+.dashboard-blocks-recent-issue {
+  box-sizing: border-box;
+  align-items: center;
+  min-width: 0;
+  /* links genug Luft, damit das Icon nicht an der Rundung klebt */
+  padding: 3px 12px 3px 8px;
+  color: inherit;
+  text-decoration: none;
+  background-color: #fff;
+  border: 1px solid var(--dashboard-blocks-border);
+  border-radius: 999px;
+}
+
+.dashboard-blocks-recent-issue:hover {
+  text-decoration: none;
+  background-color: var(--dashboard-blocks-surface);
+}
+
+.dashboard-blocks-recent-issue > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-blocks-recent-closed > span:last-child {
+  color: var(--dashboard-blocks-muted);
+  text-decoration: line-through;
+}
+
+/* Mobil: untereinander, große Tippflächen */
+@media screen and (max-width: 899px) {
+  .dashboard-blocks-recent {
+    flex-direction: column;
+  }
+
+  .dashboard-blocks-recent > li {
+    display: block;
+    max-width: 100%;
+  }
+
+  .dashboard-blocks-recent > li > a.dashboard-blocks-recent-issue {
+    gap: 8px;
+    min-height: 40px;
+    padding: 4px 16px 4px 12px;
+  }
+}
+
 /* --- Block "Tickets": Auswahl der Abfrage (ersetzt Redmines Partial) ------ */
 
 .dashboard-blocks-query-selection p {
